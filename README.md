@@ -1,19 +1,41 @@
 # Job Application Tracker
 
-A web application to help track job applications during the job search process.
+A Flask + MySQL web application for tracking companies, jobs, applications, and contacts in one place.
 
-## Features (Coming Soon)
-- Track companies and job listings
-- Record application submissions
-- Manage interview schedules
-- Store contact information
+## Features
+- Company management (create, read, update, delete)
+- Job management with status and salary tracking
+- Application management with status updates
+- Contact management for recruiter and hiring team details
+- Dashboard metrics for quick progress visibility
+- Multi-step wizard flow for faster data entry
 
-## Technologies
-- MySQL Database
-- Python with Flask
-- HTML/CSS for the web interface
+## Tech Stack
+- Python (Flask)
+- MySQL
+- HTML/CSS
 
-Quick start Guide:
-mysql -u root -p < schema.sql       # create DB + tables instead this mysql -u root -p job_tracker_test < schema.sql
+## Quick Start
+1. Create database objects:
+
+```bash
+mysql -u root -p < schema.sql
+```
+
+2. Install dependencies:
+
+```bash
 pip install -r requirements.txt
-python app.py                       # → http://127.0.0.1:5000
+```
+
+3. Run the app:
+
+```bash
+python app.py
+```
+
+4. Open in browser:
+
+```text
+http://127.0.0.1:5000
+```

@@ -24,6 +24,12 @@
 
 6. "Create the database schema SQL file with all 4 tables, foreign keys, and seed data"
 
+7. "Add a full wizard in quick actions for company -> job -> application -> contact flow"
+
+8. "Add input handling and error checks on both client and server side to follow schema constraints"
+
+9. "Update project documentation and produce a 3-7 minute execution video script and recording guide"
+
 ---
 
 ## What the AI Generated
@@ -39,6 +45,8 @@
 - **All 9 HTML templates** — base.html with sidebar nav, dashboard, list views,
   add/edit forms, and job_match.html with color-coded skill matching results
 - **requirements.txt** — Minimal dependency list (Flask, mysql-connector-python)
+- **Wizard support** — Multi-step creation flow from company to job to application to contact
+- **Validation improvements** — Client-side form constraints and server-side validation/error handling
 
 ---
 
@@ -49,6 +57,8 @@
 - Updated the MySQL password in `database.py` to match my local setup
 - Adjusted the seed data in `schema.sql` to use real companies I am applying to
 - Tweaked color values in `style.css` to match my personal preference
+- Reviewed and refined wizard behavior to ensure records are verified after inserts
+- Tested validation behavior against schema limits (for example VARCHAR length boundaries)
 - *(Add any other changes you made here)*
 
 ---
@@ -72,6 +82,7 @@
 - *(e.g. "The edit form for jobs did not pre-populate the date_posted field — I fixed
   the Jinja template to format the date correctly")*
 - *(e.g. "Had to update the DB password from 'root' to my actual password")*
+- Wizard flow initially showed success when insert verification was missing; I added explicit success checks
 - *(Add your own findings here)*
 
 ---
