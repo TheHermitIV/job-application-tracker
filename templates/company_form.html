@@ -1,0 +1,62 @@
+{% extends "base.html" %}
+{% block title %}{{ action }} Company — JobTracker{% endblock %}
+{% block page_title %}{{ action }} Company{% endblock %}
+{% block page_subtitle %}{% if action == 'Edit' %}Editing {{ company.company_name }}{% else %}Add a new company to track{% endif %}{% endblock %}
+
+{% block content %}
+<div class="card" style="max-width: 780px;">
+  <form method="POST">
+    <div class="form-grid">
+
+      <div class="form-group">
+        <label for="company_name">Company Name *</label>
+        <input type="text" id="company_name" name="company_name" required maxlength="100"
+               value="{{ company.company_name if company else '' }}"
+               placeholder="e.g. Acme Corp" />
+      </div>
+
+      <div class="form-group">
+        <label for="industry">Industry</label>
+        <input type="text" id="industry" name="industry" maxlength="50"
+               value="{{ company.industry if company else '' }}"
+               placeholder="e.g. Technology, Finance" />
+      </div>
+
+      <div class="form-group">
+        <label for="website">Website</label>
+        <input type="url" id="website" name="website" maxlength="200"
+               value="{{ company.website if company else '' }}"
+               placeholder="https://example.com" />
+      </div>
+
+      <div class="form-group" style="display:grid; grid-template-columns:1fr 1fr; gap:12px;">
+        <div>
+          <label for="city">City</label>
+          <input type="text" id="city" name="city" maxlength="50"
+                 value="{{ company.city if company else '' }}"
+                 placeholder="Austin" />
+        </div>
+        <div>
+          <label for="state">State</label>
+          <input type="text" id="state" name="state" maxlength="50"
+                 value="{{ company.state if company else '' }}"
+                 placeholder="TX" />
+        </div>
+      </div>
+
+      <div class="form-group full">
+        <label for="notes">Notes</label>
+        <textarea id="notes" name="notes" placeholder="Any notes about this company…">{{ company.notes if company else '' }}</textarea>
+      </div>
+
+      <div class="form-actions">
+        <button type="submit" class="btn btn-primary">
+          {% if action == 'Edit' %}💾 Save Changes{% else %}➕ Add Company{% endif %}
+        </button>
+        <a href="{{ url_for('companies') }}" class="btn btn-outline">Cancel</a>
+      </div>
+
+    </div>
+  </form>
+</div>
+{% endblock %}

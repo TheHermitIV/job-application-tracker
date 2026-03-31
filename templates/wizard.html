@@ -1,0 +1,335 @@
+{% extends "base.html" %}
+
+{% block title %}Job Application Wizard — JobTracker{% endblock %}
+{% block page_title %}Add New Application{% endblock %}
+{% block page_subtitle %}{{ ['Add Company', 'Add Job', 'Create Application', 'Add Contact (Optional)'][step - 1] }}{% endblock %}
+
+{% block content %}
+
+<!-- Progress Indicators -->
+<div class="wizard-progress" style="display: flex; justify-content: space-between; margin-bottom: 30px; gap: 10px;">
+  {% for i in range(1, 5) %}
+    <div class="progress-step" style="flex: 1; text-align: center;">
+      <div class="step-circle {% if i == step %}active{% elif i < step %}completed{% endif %}"
+           style="
+             width: 50px; 
+             height: 50px; 
+             margin: 0 auto 10px; 
+             border-radius: 50%; 
+             display: flex; 
+             align-items: center; 
+             justify-content: center; 
+             font-weight: bold; 
+             color: white;
+             background: {% if i == step %}#7c6fea{% elif i < step %}#34d399{% else %}#d1d5db{% endif %};
+             transition: all 0.3s ease;
+           ">
+        {% if i < step %}✓{% else %}{{ i }}{% endif %}
+      </div>
+      <div style="font-size: 0.9rem; color: var(--text-secondary);">
+        {{ ['Company', 'Job', 'Application', 'Contact'][i - 1] }}
+      </div>
+    </div>
+  {% endfor %}
+</div>
+
+<div class="card">
+  <!-- Step 1: Add Company -->
+  {% if step == 1 %}
+    <form method="POST" action="{{ url_for('wizard', step=1) }}">
+      <input type="hidden" name="step" value="1" />
+      
+      <div class="form-group">
+        <label for="company_name">Company Name *</label>
+        <input type="text" id="company_name" name="company_name" required
+               maxlength="100"
+               value="{{ company_form.get('company_name', '') if company_form else '' }}" />
+      </div>
+
+      <div class="form-group">
+        <label for="industry">Industry</label>
+        <input type="text" id="industry" name="industry"
+               maxlength="50"
+               value="{{ company_form.get('industry', '') if company_form else '' }}" />
+      </div>
+
+      <div class="form-group">
+        <label for="website">Website</label>
+        <input type="url" id="website" name="website"
+               maxlength="200"
+               placeholder="https://example.com"
+               value="{{ company_form.get('website', '') if company_form else '' }}" />
+      </div>
+
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+        <div class="form-group">
+          <label for="city">City</label>
+          <input type="text" id="city" name="city"
+                 maxlength="50"
+                 value="{{ company_form.get('city', '') if company_form else '' }}" />
+        </div>
+
+        <div class="form-group">
+          <label for="state">State</label>
+          <input type="text" id="state" name="state"
+                 maxlength="50"
+                 value="{{ company_form.get('state', '') if company_form else '' }}" />
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="notes">Notes</label>
+        <textarea id="notes" name="notes" rows="3"></textarea>
+      </div>
+
+      <div style="display: flex; gap: 10px; justify-content: space-between;">
+        <a href="{{ url_for('dashboard') }}" class="btn btn-outline">Cancel</a>
+        <button type="submit" class="btn btn-primary">Next: Add Job →</button>
+      </div>
+    </form>
+
+  <!-- Step 2: Add Job -->
+  {% elif step == 2 %}
+    <form method="POST" action="{{ url_for('wizard', step=2) }}">
+      <input type="hidden" name="step" value="2" />
+
+      {% if wizard_data.get('company_name') %}
+        <div style="background: #f0fdf4; padding: 15px; border-radius: 8px; margin-bottom: 20px; border-left: 4px solid #34d399;">
+          <strong>Company:</strong> {{ wizard_data.get('company_name') }}
+        </div>
+      {% endif %}
+
+      <div class="form-group">
+        <label for="company_id">Link to Company</label>
+        <select id="company_id" name="company_id">
+          <option value="">-- Select a company (optional) --</option>
+          {% for company in companies %}
+            <option value="{{ company.company_id }}" {% if company.company_id == wizard_data.get('company_id') %}selected{% endif %}>
+              {{ company.company_name }}
+            </option>
+          {% endfor %}
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label for="job_title">Job Title *</label>
+        <input type="text" id="job_title" name="job_title" required
+               maxlength="100"
+               value="{{ job_form.get('job_title', '') if job_form else '' }}" />
+      </div>
+
+      <div class="form-group">
+        <label for="job_url">Job URL</label>
+        <input type="url" id="job_url" name="job_url"
+               maxlength="300"
+               value="{{ job_form.get('job_url', '') if job_form else '' }}" />
+      </div>
+
+      <div class="form-group">
+        <label for="job_type">Job Type</label>
+        <select id="job_type" name="job_type">
+          <option value="">-- Select type --</option>
+          <option value="Full-time" {% if job_form and job_form.get('job_type') == 'Full-time' %}selected{% endif %}>Full-time</option>
+          <option value="Part-time" {% if job_form and job_form.get('job_type') == 'Part-time' %}selected{% endif %}>Part-time</option>
+          <option value="Contract" {% if job_form and job_form.get('job_type') == 'Contract' %}selected{% endif %}>Contract</option>
+          <option value="Temporary" {% if job_form and job_form.get('job_type') == 'Temporary' %}selected{% endif %}>Temporary</option>
+        </select>
+      </div>
+
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+        <div class="form-group">
+          <label for="date_posted">Date Posted</label>
+          <input type="date" id="date_posted" name="date_posted"
+                 value="{{ job_form.get('date_posted', '') if job_form else '' }}" />
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+          <div class="form-group">
+            <label for="salary_min">Salary Min</label>
+            <input type="number" id="salary_min" name="salary_min" min="0"
+                   value="{{ job_form.get('salary_min', '') if job_form else '' }}" />
+          </div>
+          <div class="form-group">
+            <label for="salary_max">Salary Max</label>
+            <input type="number" id="salary_max" name="salary_max" min="0"
+                   value="{{ job_form.get('salary_max', '') if job_form else '' }}" />
+          </div>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="requirements">Requirements (comma-separated)</label>
+        <textarea id="requirements" name="requirements" rows="3" placeholder="Python, SQL, Docker, ..."></textarea>
+      </div>
+
+      <div style="display: flex; gap: 10px; justify-content: space-between;">
+        <a href="{{ url_for('wizard', step=1) }}" class="btn btn-outline">← Back</a>
+        <button type="submit" class="btn btn-primary">Next: Create Application →</button>
+      </div>
+    </form>
+
+  <!-- Step 3: Create Application -->
+  {% elif step == 3 %}
+    <form method="POST" action="{{ url_for('wizard', step=3) }}">
+      <input type="hidden" name="step" value="3" />
+
+      {% if wizard_data.get('company_name') %}
+        <div style="background: #f0fdf4; padding: 15px; border-radius: 8px; margin-bottom: 20px; border-left: 4px solid #34d399;">
+          <strong>Company:</strong> {{ wizard_data.get('company_name') }}<br/>
+          <strong>Job:</strong> {{ wizard_data.get('job_title', 'New Job') }}
+        </div>
+      {% endif %}
+
+      <div class="form-group">
+        <label for="job_id">Job *</label>
+        <select id="job_id" name="job_id" required>
+          <option value="">-- Select a job --</option>
+          {% for job in jobs %}
+            <option value="{{ job.job_id }}" {% if job.job_id == wizard_data.get('job_id') %}selected{% endif %}>
+              {{ job.job_title }} - {{ job.get('company_name', 'Unknown') }}
+            </option>
+          {% endfor %}
+        </select>
+      </div>
+
+      <div style="display: flex; gap: 10px; align-items: flex-end;">
+        <div class="form-group" style="flex: 1;">
+          <label for="application_date">Application Date *</label>
+          <input type="date" id="application_date" name="application_date" required
+                 value="{{ application_form.get('application_date', '') if application_form else '' }}" />
+        </div>
+        <button type="button" class="btn btn-outline" id="set-today-btn">Today</button>
+      </div>
+
+      <script>
+        document.getElementById('set-today-btn').addEventListener('click', function(e) {
+          e.preventDefault();
+          const today = new Date().toISOString().split('T')[0];
+          document.getElementById('application_date').value = today;
+        });
+      </script>
+
+      <div class="form-group">
+        <label for="status">Status</label>
+        <select id="status" name="status">
+          {% for status in statuses %}
+            <option value="{{ status }}" {% if application_form and application_form.get('status') == status %}selected{% elif status == 'Applied' %}selected{% endif %}>
+              {{ status }}
+            </option>
+          {% endfor %}
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label for="resume_version">Resume Version</label>
+        <input type="text" id="resume_version" name="resume_version"
+               maxlength="50"
+               placeholder="v1.0"
+               value="{{ application_form.get('resume_version', '') if application_form else '' }}" />
+      </div>
+
+      <div class="form-group">
+        <label for="cover_letter_sent">
+          <input type="checkbox" id="cover_letter_sent" name="cover_letter_sent"
+                 {% if application_form and application_form.get('cover_letter_sent') %}checked{% endif %} />
+          Cover Letter Sent
+        </label>
+      </div>
+
+      <div class="form-group">
+        <label for="interview_data">Interview Data (JSON)</label>
+        <textarea id="interview_data" name="interview_data" rows="4" placeholder='{"notes": "...", "date": "..."}'></textarea>
+        <small style="color: var(--text-secondary);">Optional. Use valid JSON format.</small>
+      </div>
+
+      <div style="display: flex; gap: 10px; justify-content: space-between;">
+        <a href="{{ url_for('wizard', step=2) }}" class="btn btn-outline">← Back</a>
+        <button type="submit" class="btn btn-primary">Next: Add Contact (Optional) →</button>
+      </div>
+    </form>
+
+  <!-- Step 4: Add Contact (Optional) -->
+  {% elif step == 4 %}
+    <form method="POST" action="{{ url_for('wizard', step=4) }}">
+      <input type="hidden" name="step" value="4" />
+
+      <div style="background: #f0fdf4; padding: 15px; border-radius: 8px; margin-bottom: 20px; border-left: 4px solid #34d399;">
+        <strong>Application Created!</strong><br/>
+        <small>Optionally add a contact at this company. You can also skip this step.</small>
+      </div>
+
+      <div class="form-group">
+        <label for="company_id">Company</label>
+        <select id="company_id" name="company_id">
+          <option value="">-- Select company --</option>
+          {% for company in companies %}
+            <option value="{{ company.company_id }}" {% if company.company_id == wizard_data.get('company_id') %}selected{% endif %}>
+              {{ company.company_name }}
+            </option>
+          {% endfor %}
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label for="contact_name">Contact Name</label>
+        <input type="text" id="contact_name" name="contact_name"
+               maxlength="100"
+               value="{{ contact_form.get('contact_name', '') if contact_form else '' }}" />
+      </div>
+
+      <div class="form-group">
+        <label for="title">Job Title</label>
+        <input type="text" id="title" name="title"
+               maxlength="100"
+               value="{{ contact_form.get('title', '') if contact_form else '' }}" />
+      </div>
+
+      <div class="form-group">
+        <label for="email">Email</label>
+        <input type="email" id="email" name="email"
+               maxlength="100"
+               value="{{ contact_form.get('email', '') if contact_form else '' }}" />
+      </div>
+
+      <div class="form-group">
+        <label for="phone">Phone</label>
+        <input type="tel" id="phone" name="phone"
+               maxlength="20"
+               value="{{ contact_form.get('phone', '') if contact_form else '' }}" />
+      </div>
+
+      <div class="form-group">
+        <label for="linkedin_url">LinkedIn URL</label>
+        <input type="url" id="linkedin_url" name="linkedin_url"
+               maxlength="200"
+               placeholder="https://linkedin.com/in/..."
+               value="{{ contact_form.get('linkedin_url', '') if contact_form else '' }}" />
+      </div>
+
+      <div class="form-group">
+        <label for="notes">Notes</label>
+        <textarea id="notes" name="notes" rows="3"></textarea>
+      </div>
+
+      <div style="display: flex; gap: 10px; justify-content: space-between;">
+        <div style="display: flex; gap: 10px;">
+          <a href="{{ url_for('wizard', step=3) }}" class="btn btn-outline">← Back</a>
+          <button type="submit" name="skip_contact" value="1" class="btn btn-outline">Skip</button>
+        </div>
+        <button type="submit" class="btn btn-primary">✓ Complete Wizard</button>
+      </div>
+    </form>
+
+  {% endif %}
+
+</div>
+
+<style>
+  .wizard-progress { }
+  .progress-step { }
+  .step-circle { }
+  .step-circle.active { }
+  .step-circle.completed { }
+</style>
+
+{% endblock %}

@@ -1,0 +1,89 @@
+{% extends "base.html" %}
+{% block title %}{{ action }} Job — JobTracker{% endblock %}
+{% block page_title %}{{ action }} Job{% endblock %}
+{% block page_subtitle %}{% if action == 'Edit' %}Editing {{ job.job_title }}{% else %}Add a new job listing{% endif %}{% endblock %}
+
+{% block content %}
+<div class="card" style="max-width: 780px;">
+  <form method="POST">
+    <div class="form-grid">
+
+      <div class="form-group">
+        <label for="job_title">Job Title *</label>
+        <input type="text" id="job_title" name="job_title" required maxlength="100"
+               value="{{ job.job_title if job else '' }}"
+               placeholder="e.g. Software Engineer" />
+      </div>
+
+      <div class="form-group">
+        <label for="company_id">Company</label>
+        <select id="company_id" name="company_id">
+          <option value="">— Select Company —</option>
+          {% for c in companies %}
+            <option value="{{ c.company_id }}"
+              {% if job and job.company_id == c.company_id %}selected{% endif %}>
+              {{ c.company_name }}
+            </option>
+          {% endfor %}
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label for="job_type">Job Type</label>
+        <select id="job_type" name="job_type">
+          <option value="">— Select Type —</option>
+          {% for t in ['Full-time', 'Part-time', 'Contract', 'Internship'] %}
+            <option value="{{ t }}"
+              {% if job and job.job_type == t %}selected{% endif %}>{{ t }}</option>
+          {% endfor %}
+        </select>
+      </div>
+
+      <div class="form-group" style="display:grid; grid-template-columns:1fr 1fr; gap:12px;">
+        <div>
+          <label for="salary_min">Salary Min ($)</label>
+          <input type="number" id="salary_min" name="salary_min" min="0"
+                 value="{{ job.salary_min if job else '' }}"
+                 placeholder="70000" />
+        </div>
+        <div>
+          <label for="salary_max">Salary Max ($)</label>
+          <input type="number" id="salary_max" name="salary_max" min="0"
+                 value="{{ job.salary_max if job else '' }}"
+                 placeholder="100000" />
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="job_url">Job URL</label>
+        <input type="url" id="job_url" name="job_url" maxlength="300"
+               value="{{ job.job_url if job else '' }}"
+               placeholder="https://careers.example.com/job/123" />
+      </div>
+
+      <div class="form-group">
+        <label for="date_posted">Date Posted</label>
+        <input type="date" id="date_posted" name="date_posted"
+               value="{{ job.date_posted if job else '' }}" />
+      </div>
+
+      <div class="form-group full">
+        <label for="requirements">Required Skills
+          <span class="text-muted text-sm">(comma-separated, e.g. Python, SQL, Flask)</span>
+        </label>
+        <input type="text" id="requirements" name="requirements"
+               value="{{ job.requirements_str if job else '' }}"
+               placeholder="Python, SQL, Docker, AWS" />
+      </div>
+
+      <div class="form-actions">
+        <button type="submit" class="btn btn-primary">
+          {% if action == 'Edit' %}💾 Save Changes{% else %}➕ Add Job{% endif %}
+        </button>
+        <a href="{{ url_for('jobs') }}" class="btn btn-outline">Cancel</a>
+      </div>
+
+    </div>
+  </form>
+</div>
+{% endblock %}

@@ -1,0 +1,107 @@
+{% extends "base.html" %}
+{% block title %}Job Match — JobTracker{% endblock %}
+{% block page_title %}Job Match{% endblock %}
+{% block page_subtitle %}Find jobs that fit your skills{% endblock %}
+
+{% block content %}
+
+<!-- Skills Input -->
+<div class="card" style="max-width: 720px; margin-bottom: 28px;">
+  <div class="card-header">
+    <span class="card-title">✨ Enter Your Skills</span>
+  </div>
+  <form method="POST" style="display:flex; gap:12px; align-items:flex-end;">
+    <div class="form-group" style="flex:1; margin:0;">
+      <label for="skills">Your Skills <span class="text-muted text-sm">(comma-separated)</span></label>
+      <input type="text" id="skills" name="skills"
+             value="{{ user_skills }}"
+             placeholder="Python, SQL, Flask, Docker, AWS" />
+    </div>
+    <button type="submit" class="btn btn-primary" style="white-space:nowrap;">
+      🔍 Find Matches
+    </button>
+  </form>
+</div>
+
+<!-- Results -->
+{% if results is defined and results %}
+  <div class="section-header">
+    <span class="section-title">{{ results | length }} job{{ 's' if results | length != 1 }} found</span>
+    <span class="text-muted text-sm">Sorted by match %</span>
+  </div>
+
+  {% for r in results %}
+    {% if r.match_pct >= 70 %}
+      {% set tier = 'high' %}
+    {% elif r.match_pct >= 40 %}
+      {% set tier = 'medium' %}
+    {% else %}
+      {% set tier = 'low' %}
+    {% endif %}
+
+    <div class="match-card">
+      <div class="match-pct {{ tier }}">{{ r.match_pct }}%</div>
+
+      <div class="match-info">
+        <div class="match-title">{{ r.job_title }}</div>
+        <div class="match-company">
+          🏢 {{ r.company_name }}
+          {% if r.salary_min or r.salary_max %}
+            &nbsp;·&nbsp;
+            💰 ${{ '{:,}'.format(r.salary_min) if r.salary_min else '?' }}
+            –
+            ${{ '{:,}'.format(r.salary_max) if r.salary_max else '?' }}
+          {% endif %}
+        </div>
+        <div class="match-skills">
+          {% for s in r.matched %}
+            <span class="skill-tag matched">✓ {{ s }}</span>
+          {% endfor %}
+          {% for s in r.missing %}
+            <span class="skill-tag missing">✗ {{ s }}</span>
+          {% endfor %}
+        </div>
+      </div>
+
+      <div class="match-progress">
+        <span class="text-sm text-muted">{{ r.matched | length }}/{{ r.total_reqs }} skills</span>
+        <div class="progress-track">
+          <div class="progress-fill {{ tier }}" style="width:{{ r.match_pct }}%;"></div>
+        </div>
+      </div>
+    </div>
+  {% endfor %}
+
+{% elif request.method == 'POST' or user_skills %}
+  <div class="empty-state">
+    <div class="icon">🤷</div>
+    <p>No jobs found with requirements to match against.<br>
+       Try adding jobs with skill requirements first.</p>
+  </div>
+
+{% else %}
+  <!-- Explainer when no search yet -->
+  <div class="card" style="max-width:640px;">
+    <div style="text-align:center; padding: 20px 0;">
+      <div style="font-size:2.5rem; margin-bottom:12px;">🎯</div>
+      <h3 style="font-family:'Syne',sans-serif; margin-bottom:8px; font-size:1.1rem;">How Job Match Works</h3>
+      <p class="text-muted" style="font-size:0.9rem; line-height:1.7;">
+        Enter your skills above, and we'll compare them against the requirements
+        stored for each job listing. Results are ranked by match percentage so you
+        can focus on the best-fit opportunities first.
+      </p>
+      <div style="margin-top:20px; display:flex; flex-direction:column; gap:10px; text-align:left; max-width:360px; margin-left:auto; margin-right:auto;">
+        <div style="display:flex; gap:10px; align-items:center;">
+          <span class="skill-tag matched">✓ Python</span>
+          <span class="text-muted text-sm">Skill you have that the job needs</span>
+        </div>
+        <div style="display:flex; gap:10px; align-items:center;">
+          <span class="skill-tag missing">✗ Docker</span>
+          <span class="text-muted text-sm">Skill the job needs that you're missing</span>
+        </div>
+      </div>
+    </div>
+  </div>
+{% endif %}
+
+{% endblock %}

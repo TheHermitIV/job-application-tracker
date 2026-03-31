@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>{% block title %}JobTracker{% endblock %}</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}" />
+</head>
+<body>
+
+  <!-- ── Sidebar ── -->
+  <nav class="sidebar">
+    <div class="sidebar-brand">
+      <div class="logo">
+        <img class="logo-image" src="{{ url_for('static', filename='images/jobtracker-logo.png') }}" alt="JobTracker logo" />
+      </div>
+      <div class="tagline">Your career command center</div>
+    </div>
+
+    <div class="sidebar-nav">
+      <div class="nav-section-label">Overview</div>
+      <a href="{{ url_for('dashboard') }}"
+         class="nav-item {% if request.endpoint == 'dashboard' %}active{% endif %}">
+        <span class="nav-icon">📊</span> Dashboard
+      </a>
+
+      <div class="nav-section-label" style="margin-top:8px">Manage</div>
+      <a href="{{ url_for('companies') }}"
+         class="nav-item {% if 'compan' in request.endpoint %}active{% endif %}">
+        <span class="nav-icon">🏢</span> Companies
+      </a>
+      <a href="{{ url_for('jobs') }}"
+         class="nav-item {% if 'job' in request.endpoint and 'match' not in request.endpoint %}active{% endif %}">
+        <span class="nav-icon">💼</span> Jobs
+      </a>
+      <a href="{{ url_for('applications') }}"
+         class="nav-item {% if 'application' in request.endpoint %}active{% endif %}">
+        <span class="nav-icon">📝</span> Applications
+      </a>
+      <a href="{{ url_for('contacts') }}"
+         class="nav-item {% if 'contact' in request.endpoint %}active{% endif %}">
+        <span class="nav-icon">👥</span> Contacts
+      </a>
+
+      <div class="nav-section-label" style="margin-top:8px">Tools</div>
+      <a href="{{ url_for('job_match') }}"
+         class="nav-item {% if request.endpoint == 'job_match' %}active{% endif %}">
+        <span class="nav-icon">✨</span> Job Match
+      </a>
+    </div>
+
+    <div class="sidebar-footer">
+      Flask · MySQL · Python
+    </div>
+  </nav>
+
+  <!-- ── Main ── -->
+  <div class="main">
+    <div class="topbar">
+      <div>
+        <div class="topbar-title">{% block page_title %}Dashboard{% endblock %}</div>
+        <div class="topbar-subtitle">{% block page_subtitle %}{% endblock %}</div>
+      </div>
+      <div>{% block topbar_actions %}{% endblock %}</div>
+    </div>
+
+    <!-- Flash messages -->
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        <div class="flash-container">
+          {% for category, message in messages %}
+            <div class="flash flash-{{ category }}">
+              {% if category == 'success' %}✓{% elif category == 'info' %}ℹ{% else %}!{% endif %}
+              {{ message }}
+            </div>
+          {% endfor %}
+        </div>
+      {% endif %}
+    {% endwith %}
+
+    <div class="page-content">
+      {% block content %}{% endblock %}
+    </div>
+  </div>
+
+</body>
+</html>

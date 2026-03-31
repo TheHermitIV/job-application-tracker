@@ -1,0 +1,115 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard — JobTracker{% endblock %}
+{% block page_title %}Dashboard{% endblock %}
+{% block page_subtitle %}Your job search at a glance{% endblock %}
+
+{% block content %}
+
+<!-- Stat Cards -->
+<div class="stats-grid">
+  <div class="stat-card purple">
+    <div class="stat-label">Applications</div>
+    <div class="stat-value">{{ stats.total_applications }}</div>
+  </div>
+  <div class="stat-card amber">
+    <div class="stat-label">Companies</div>
+    <div class="stat-value">{{ stats.total_companies }}</div>
+  </div>
+  <div class="stat-card green">
+    <div class="stat-label">Jobs Tracked</div>
+    <div class="stat-value">{{ stats.total_jobs }}</div>
+  </div>
+  <div class="stat-card sky">
+    <div class="stat-label">Contacts</div>
+    <div class="stat-value">{{ stats.total_contacts }}</div>
+  </div>
+</div>
+
+<div class="dash-grid">
+
+  <!-- Application Status Breakdown -->
+  <div class="card">
+    <div class="card-header">
+      <span class="card-title">Status Breakdown</span>
+    </div>
+    {% set total = stats.total_applications or 1 %}
+    {% set status_colors = {
+      'Applied':   '#38bdf8',
+      'Screening': '#f5a623',
+      'Interview': '#7c6fea',
+      'Offer':     '#34d399',
+      'Rejected':  '#f87171',
+      'Withdrawn': '#6b7280'
+    } %}
+    <div class="status-bar">
+      {% for status, color in status_colors.items() %}
+        {% set cnt = stats.by_status.get(status, 0) %}
+        {% set pct = (cnt / total * 100) | round(1) %}
+        <div class="status-row">
+          <span class="label">{{ status }}</span>
+          <div class="bar-track">
+            <div class="bar-fill" style="width: {{ pct }}%; background: {{ color }};"></div>
+          </div>
+          <span class="count">{{ cnt }}</span>
+        </div>
+      {% endfor %}
+    </div>
+  </div>
+
+  <!-- Quick Links -->
+  <div class="card">
+    <div class="card-header">
+      <span class="card-title">Quick Actions</span>
+    </div>
+    <div style="display:flex; flex-direction:column; gap:10px;">
+      <a href="{{ url_for('wizard') }}" class="btn btn-primary">🚀 Start Wizard</a>
+      <a href="{{ url_for('add_application') }}" class="btn btn-outline">➕ New Application</a>
+      <a href="{{ url_for('add_company') }}"     class="btn btn-outline">🏢 Add Company</a>
+      <a href="{{ url_for('add_job') }}"         class="btn btn-outline">💼 Add Job</a>
+      <a href="{{ url_for('add_contact') }}"     class="btn btn-outline">👤 Add Contact</a>
+      <a href="{{ url_for('job_match') }}"       class="btn btn-outline">✨ Run Job Match</a>
+    </div>
+  </div>
+
+  <!-- Recent Applications -->
+  <div class="card span-2">
+    <div class="card-header">
+      <span class="card-title">Recent Applications</span>
+      <a href="{{ url_for('applications') }}" class="btn btn-sm btn-outline">View All</a>
+    </div>
+    {% if stats.recent_applications %}
+      <div class="table-wrapper">
+        <table>
+          <thead>
+            <tr>
+              <th>Job Title</th>
+              <th>Company</th>
+              <th>Date</th>
+              <th>Status</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for app in stats.recent_applications %}
+            <tr>
+              <td>{{ app.job_title }}</td>
+              <td class="text-muted">{{ app.company_name }}</td>
+              <td class="text-muted text-sm">{{ app.application_date }}</td>
+              <td>
+                <span class="badge badge-{{ app.status | lower }}">{{ app.status }}</span>
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    {% else %}
+      <div class="empty-state">
+        <div class="icon">📝</div>
+        <p>No applications yet. <a href="{{ url_for('add_application') }}">Add your first one!</a></p>
+      </div>
+    {% endif %}
+  </div>
+
+</div>
+{% endblock %}

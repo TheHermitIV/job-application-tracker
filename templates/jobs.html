@@ -1,0 +1,71 @@
+{% extends "base.html" %}
+{% block title %}Jobs — JobTracker{% endblock %}
+{% block page_title %}Jobs{% endblock %}
+{% block page_subtitle %}{{ jobs | length }} jobs tracked{% endblock %}
+{% block topbar_actions %}
+  <a href="{{ url_for('add_job') }}" class="btn btn-primary">➕ Add Job</a>
+{% endblock %}
+
+{% block content %}
+{% if jobs %}
+  <div class="table-wrapper">
+    <table>
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>Title</th>
+          <th>Company</th>
+          <th>Type</th>
+          <th>Salary Range</th>
+          <th>Posted</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for j in jobs %}
+        <tr>
+          <td class="text-muted text-sm">{{ j.job_id }}</td>
+          <td>
+            <strong>{{ j.job_title }}</strong>
+            {% if j.job_url %}
+              <a href="{{ j.job_url }}" target="_blank" rel="noopener"
+                 style="margin-left:6px; font-size:0.75rem;">🔗</a>
+            {% endif %}
+          </td>
+          <td class="text-muted">{{ j.company_name or '—' }}</td>
+          <td>
+            {% if j.job_type %}
+              <span class="badge" style="background:rgba(124,111,234,0.15); color:var(--accent);">
+                {{ j.job_type }}
+              </span>
+            {% else %}—{% endif %}
+          </td>
+          <td class="text-sm">
+            {% if j.salary_min or j.salary_max %}
+              ${{ '{:,}'.format(j.salary_min) if j.salary_min else '?' }}
+              –
+              ${{ '{:,}'.format(j.salary_max) if j.salary_max else '?' }}
+            {% else %}—{% endif %}
+          </td>
+          <td class="text-muted text-sm">{{ j.date_posted or '—' }}</td>
+          <td>
+            <div class="actions-cell">
+              <a href="{{ url_for('edit_job', job_id=j.job_id) }}" class="btn btn-sm btn-outline">Edit</a>
+              <form method="POST" action="{{ url_for('delete_job', job_id=j.job_id) }}"
+                    onsubmit="return confirm('Delete {{ j.job_title }}?')">
+                <button type="submit" class="btn btn-sm btn-danger">Delete</button>
+              </form>
+            </div>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+{% else %}
+  <div class="empty-state">
+    <div class="icon">💼</div>
+    <p>No jobs yet. <a href="{{ url_for('add_job') }}">Add a job listing!</a></p>
+  </div>
+{% endif %}
+{% endblock %}

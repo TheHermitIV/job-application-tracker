@@ -1,0 +1,76 @@
+{% extends "base.html" %}
+{% block title %}Applications — JobTracker{% endblock %}
+{% block page_title %}Applications{% endblock %}
+{% block page_subtitle %}{{ applications | length }} application{{ 's' if applications | length != 1 }}{% if current_status %} · filtered by {{ current_status }}{% endif %}{% endblock %}
+{% block topbar_actions %}
+  <a href="{{ url_for('add_application') }}" class="btn btn-primary">➕ Add Application</a>
+{% endblock %}
+
+{% block content %}
+
+<!-- Status filter tabs -->
+<div style="display:flex; gap:8px; margin-bottom:20px; flex-wrap:wrap;">
+  <a href="{{ url_for('applications') }}"
+     class="btn btn-sm {% if not current_status %}btn-primary{% else %}btn-outline{% endif %}">
+    All
+  </a>
+  {% for s in statuses %}
+    <a href="{{ url_for('applications', status=s) }}"
+       class="btn btn-sm {% if current_status == s %}btn-primary{% else %}btn-outline{% endif %}">
+      {{ s }}
+    </a>
+  {% endfor %}
+</div>
+
+{% if applications %}
+  <div class="table-wrapper">
+    <table>
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>Job Title</th>
+          <th>Company</th>
+          <th>Date Applied</th>
+          <th>Status</th>
+          <th>Resume Ver.</th>
+          <th>Cover Letter</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for a in applications %}
+        <tr>
+          <td class="text-muted text-sm">{{ a.application_id }}</td>
+          <td><strong>{{ a.job_title }}</strong></td>
+          <td class="text-muted">{{ a.company_name }}</td>
+          <td class="text-muted text-sm">{{ a.application_date }}</td>
+          <td>
+            <span class="badge badge-{{ a.status | lower }}">{{ a.status }}</span>
+          </td>
+          <td class="text-sm text-muted">{{ a.resume_version or '—' }}</td>
+          <td style="text-align:center;">
+            {% if a.cover_letter_sent %}✅{% else %}—{% endif %}
+          </td>
+          <td>
+            <div class="actions-cell">
+              <a href="{{ url_for('edit_application', application_id=a.application_id) }}"
+                 class="btn btn-sm btn-outline">Edit</a>
+              <form method="POST"
+                    action="{{ url_for('delete_application', application_id=a.application_id) }}"
+                    onsubmit="return confirm('Delete this application?')">
+                <button type="submit" class="btn btn-sm btn-danger">Delete</button>
+              </form>
+            </div>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+{% else %}
+  <div class="empty-state">
+    <div class="icon">📝</div>
+    <p>No applications found. <a href="{{ url_for('add_application') }}">Start tracking!</a></p>
+  </div>
+{% endif %}
+{% endblock %}

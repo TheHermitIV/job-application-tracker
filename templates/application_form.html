@@ -1,0 +1,104 @@
+{% extends "base.html" %}
+{% block title %}{{ action }} Application — JobTracker{% endblock %}
+{% block page_title %}{{ action }} Application{% endblock %}
+{% block page_subtitle %}{% if action == 'Edit' %}Update application details{% else %}Log a new job application{% endif %}{% endblock %}
+
+{% block content %}
+<div class="card" style="max-width: 680px;">
+  <form method="POST">
+    <div class="form-grid">
+
+      <div class="form-group full">
+        <label for="job_id">Job *</label>
+        <select id="job_id" name="job_id" required>
+          <option value="">— Select Job —</option>
+          {% for j in jobs %}
+            <option value="{{ j.job_id }}"
+              {% if application and (application.get('job_id')|string) == (j.job_id|string) %}selected{% endif %}>
+              {{ j.job_title }} @ {{ j.company_name or 'Unknown' }}
+            </option>
+          {% endfor %}
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label for="status">Status</label>
+        <select id="status" name="status">
+          {% for s in statuses %}
+            <option value="{{ s }}"
+              {% if application and application.get('status') == s %}selected
+              {% elif not application and s == 'Applied' %}selected{% endif %}>
+              {{ s }}
+            </option>
+          {% endfor %}
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label for="resume_version">Resume Version</label>
+        <input type="text" id="resume_version" name="resume_version" maxlength="50"
+               value="{{ application.get('resume_version', '') if application else '' }}"
+               placeholder="e.g. v3-tech, v2-general" />
+      </div>
+
+      <div style="display: flex; gap: 30px; align-items: flex-end;">
+        <div class="form-group" style="flex: 1;">
+          <label for="application_date">Application Date *</label>
+          <input type="date" id="application_date" name="application_date" required
+                 value="{{ application.get('application_date', '') if application else '' }}" />
+        </div>
+        <button type="button" class="btn btn-outline" id="set-today-btn">Today</button>
+      </div>
+
+      <div class="form-group full">
+        <div class="checkbox-row">
+          <input type="checkbox" id="cover_letter_sent" name="cover_letter_sent"
+                 {% if application and (application.get('cover_letter_sent') or application.get('cover_letter_sent') == 'on') %}checked{% endif %} />
+          <label for="cover_letter_sent">Cover letter sent</label>
+        </div>
+      </div>
+
+      <div class="form-group full">
+        <label for="interview_data">Interview Data (JSON)
+          <span class="text-muted text-sm">(Optional - must be valid JSON)</span>
+        </label>
+        <textarea id="interview_data" name="interview_data" rows="5"
+                  placeholder='e.g. {"round": 1, "date": "2025-02-15", "notes": "Phone screen"}'>{{ application.get('interview_data', '') if application else '' }}</textarea>
+      </div>
+
+      <div class="form-actions">
+        <button type="submit" class="btn btn-primary">
+          {% if action == 'Edit' %}💾 Save Changes{% else %}➕ Add Application{% endif %}
+        </button>
+        <a href="{{ url_for('applications') }}" class="btn btn-outline">Cancel</a>
+      </div>
+
+    </div>
+  </form>
+</div>
+<script>
+  document.getElementById('set-today-btn')?.addEventListener('click', function (e) {
+    e.preventDefault();
+    const dateInput = document.getElementById('application_date');
+    if (!dateInput) return;
+    const today = new Date();
+    const yyyy = today.getFullYear();
+    const mm = String(today.getMonth() + 1).padStart(2, '0');
+    const dd = String(today.getDate()).padStart(2, '0');
+    dateInput.value = `${yyyy}-${mm}-${dd}`;
+  });
+
+  // Validate JSON on blur for interview_data
+  document.getElementById('interview_data')?.addEventListener('blur', function () {
+    const textarea = this;
+    const value = textarea.value.trim();
+    if (!value) return; // Empty is OK
+    try {
+      JSON.parse(value);
+      textarea.style.borderColor = '';
+    } catch (e) {
+      textarea.style.borderColor = '#dc2626'; // Red for error
+    }
+  });
+</script>
+{% endblock %}
