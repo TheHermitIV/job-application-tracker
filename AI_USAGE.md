@@ -2,7 +2,7 @@
 
 ## Tools Used
 
-- **Claude (Anthropic)** — Primary tool used throughout the project for code generation,
+- **Claude & Copilot** — Are the primary tool used throughout the project for code generation,
   debugging, and architecture decisions.
 
 ---
