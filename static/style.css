@@ -62,12 +62,6 @@ a:hover { color: #a89ff0; }
   height: auto;
   object-fit: contain;
 }
-.sidebar-brand .tagline {
-  font-size: 0.72rem;
-  color: var(--muted);
-  margin-top: 4px;
-  letter-spacing: 0.04em;
-}
 
 .sidebar-nav { padding: 16px 12px; flex: 1; }
 .nav-section-label {

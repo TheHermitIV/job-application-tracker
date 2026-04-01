@@ -14,7 +14,6 @@
       <div class="logo">
         <img class="logo-image" src="{{ url_for('static', filename='images/jobtracker-logo.png') }}" alt="JobTracker logo" />
       </div>
-      <div class="tagline">Your career command center</div>
     </div>
 
     <div class="sidebar-nav">
@@ -59,7 +58,6 @@
     <div class="topbar">
       <div>
         <div class="topbar-title">{% block page_title %}Dashboard{% endblock %}</div>
-        <div class="topbar-subtitle">{% block page_subtitle %}{% endblock %}</div>
       </div>
       <div>{% block topbar_actions %}{% endblock %}</div>
     </div>
